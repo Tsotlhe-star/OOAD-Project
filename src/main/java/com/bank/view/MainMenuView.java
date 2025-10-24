@@ -12,93 +12,72 @@ public class MainMenuView {
     private Stage stage;
     private Scene scene;
 
-    // Buttons for main menu
     private Button createAccountBtn;
     private Button depositBtn;
     private Button withdrawBtn;
     private Button viewHistoryBtn;
+    private Button processInterestBtn;
     private Button exitBtn;
 
     public MainMenuView(Stage stage) {
         this.stage = stage;
         createView();
-        setupEventHandlers();
     }
 
     private void createView() {
-        // Create title label
         Label titleLabel = new Label("Banking System");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
-        // Create buttons
+        Label subtitleLabel = new Label("Welcome to First National Bank");
+        subtitleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d;");
+
         createAccountBtn = new Button("Create New Account");
         depositBtn = new Button("Deposit Money");
         withdrawBtn = new Button("Withdraw Money");
         viewHistoryBtn = new Button("View Transaction History");
+        processInterestBtn = new Button("Process Monthly Interest");
         exitBtn = new Button("Exit");
 
-        // Set button sizes
-        createAccountBtn.setPrefWidth(200);
-        depositBtn.setPrefWidth(200);
-        withdrawBtn.setPrefWidth(200);
-        viewHistoryBtn.setPrefWidth(200);
-        exitBtn.setPrefWidth(200);
+        // Style buttons
+        String buttonStyle = "-fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 5;";
+        createAccountBtn.setStyle(buttonStyle + "-fx-background-color: #3498db; -fx-text-fill: white;");
+        depositBtn.setStyle(buttonStyle + "-fx-background-color: #2ecc71; -fx-text-fill: white;");
+        withdrawBtn.setStyle(buttonStyle + "-fx-background-color: #e74c3c; -fx-text-fill: white;");
+        viewHistoryBtn.setStyle(buttonStyle + "-fx-background-color: #9b59b6; -fx-text-fill: white;");
+        processInterestBtn.setStyle(buttonStyle + "-fx-background-color: #f39c12; -fx-text-fill: white;");
+        exitBtn.setStyle(buttonStyle + "-fx-background-color: #95a5a6; -fx-text-fill: white;");
 
-        // Create layout
+        createAccountBtn.setPrefWidth(250);
+        depositBtn.setPrefWidth(250);
+        withdrawBtn.setPrefWidth(250);
+        viewHistoryBtn.setPrefWidth(250);
+        processInterestBtn.setPrefWidth(250);
+        exitBtn.setPrefWidth(250);
+
         VBox layout = new VBox(15);
         layout.setAlignment(Pos.CENTER);
-        layout.setPadding(new Insets(20));
+        layout.setPadding(new Insets(30));
+        layout.setStyle("-fx-background-color: #ecf0f1;");
         layout.getChildren().addAll(
                 titleLabel,
+                subtitleLabel,
                 createAccountBtn,
                 depositBtn,
                 withdrawBtn,
                 viewHistoryBtn,
+                processInterestBtn,
                 exitBtn
         );
 
-        // Create scene
-        scene = new Scene(layout, 400, 400);
+        scene = new Scene(layout, 450, 550);
         stage.setTitle("Banking System - Main Menu");
         stage.setScene(scene);
-    }
-
-    private void setupEventHandlers() {
-        // Create Account button handler
-        createAccountBtn.setOnAction(e -> {
-            CreateAccountView createAccountView = new CreateAccountView();
-            createAccountView.show();
-        });
-
-        // Deposit button handler
-        depositBtn.setOnAction(e -> {
-            DepositView depositView = new DepositView();
-            depositView.show();
-        });
-
-        // Withdraw button handler
-        withdrawBtn.setOnAction(e -> {
-            WithdrawView withdrawView = new WithdrawView();
-            withdrawView.show();
-        });
-
-        // View History button handler
-        viewHistoryBtn.setOnAction(e -> {
-            TransactionHistoryView historyView = new TransactionHistoryView();
-            historyView.show();
-        });
-
-        // Exit button handler
-        exitBtn.setOnAction(e -> {
-            stage.close();
-        });
     }
 
     public void show() {
         stage.show();
     }
 
-    // Getters for buttons (controllers will use these)
     public Button getCreateAccountBtn() {
         return createAccountBtn;
     }
@@ -113,6 +92,10 @@ public class MainMenuView {
 
     public Button getViewHistoryBtn() {
         return viewHistoryBtn;
+    }
+
+    public Button getProcessInterestBtn() {
+        return processInterestBtn;
     }
 
     public Button getExitBtn() {

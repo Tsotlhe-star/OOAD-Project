@@ -22,34 +22,38 @@ public class TransactionHistoryView {
     public TransactionHistoryView() {
         this.stage = new Stage();
         createView();
-        setupEventHandlers();
     }
 
     private void createView() {
         Label titleLabel = new Label("Transaction History");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
         HBox searchBox = new HBox(10);
         searchBox.setAlignment(Pos.CENTER);
         searchBox.setPadding(new Insets(10));
 
         Label searchLabel = new Label("Account Number:");
+        searchLabel.setStyle("-fx-font-weight: bold;");
         accountNumberField = new TextField();
         accountNumberField.setPromptText("Enter account number");
+        accountNumberField.setPrefWidth(200);
         searchBtn = new Button("Search");
+        searchBtn.setStyle("-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold;");
 
         searchBox.getChildren().addAll(searchLabel, accountNumberField, searchBtn);
 
         accountInfoLabel = new Label("");
-        accountInfoLabel.setStyle("-fx-font-weight: bold; -fx-padding: 10;");
+        accountInfoLabel.setStyle("-fx-font-weight: bold; -fx-padding: 10; -fx-font-size: 13px;");
 
         historyArea = new TextArea();
         historyArea.setEditable(false);
         historyArea.setWrapText(true);
         historyArea.setPrefHeight(300);
-        historyArea.setPromptText("Enter account number and click Search to view transactions");
+        historyArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 12px;");
+        historyArea.setPromptText("Enter account number and click Search to view transaction history");
 
         closeBtn = new Button("Close");
+        closeBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 30;");
         HBox buttonBox = new HBox(closeBtn);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.setPadding(new Insets(10));
@@ -65,15 +69,9 @@ public class TransactionHistoryView {
         layout.setBottom(buttonBox);
         layout.setPadding(new Insets(10));
 
-        scene = new Scene(layout, 600, 450);
+        scene = new Scene(layout, 650, 500);
         stage.setTitle("Transaction History");
         stage.setScene(scene);
-    }
-
-    private void setupEventHandlers() {
-        closeBtn.setOnAction(e -> {
-            close();
-        });
     }
 
     public void show() {
@@ -85,7 +83,7 @@ public class TransactionHistoryView {
     }
 
     public String getAccountNumber() {
-        return accountNumberField.getText();
+        return accountNumberField.getText().trim();
     }
 
     public Button getSearchBtn() {
@@ -107,5 +105,6 @@ public class TransactionHistoryView {
     public void clearHistory() {
         historyArea.clear();
         accountInfoLabel.setText("");
+        accountNumberField.clear();
     }
 }

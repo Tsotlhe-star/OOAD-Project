@@ -1,24 +1,31 @@
 package com.bank;
 
+import com.bank.controller.MainMenuController;
+import com.bank.model.Bank;
 import com.bank.view.MainMenuView;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 public class BankingApp extends Application {
 
+    private Bank bank;
+
     @Override
     public void start(Stage primaryStage) {
-        // Create and show main menu
-        MainMenuView mainMenu = new MainMenuView(primaryStage);
-        mainMenu.show();
+        // Create the bank
+        bank = new Bank("First National Bank");
 
-        // NOTE: Controllers will be added in Week Oct 20-24
-        // For now, this just displays the GUI
+        // Create main menu view
+        MainMenuView mainMenuView = new MainMenuView(primaryStage);
+
+        // Create controllers and pass them the bank and views
+        MainMenuController mainMenuController = new MainMenuController(bank, mainMenuView);
+
+        // Show the main menu
+        mainMenuView.show();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
-
-// True

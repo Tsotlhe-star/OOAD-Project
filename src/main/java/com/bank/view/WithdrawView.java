@@ -21,12 +21,11 @@ public class WithdrawView {
     public WithdrawView() {
         this.stage = new Stage();
         createView();
-        setupEventHandlers();
     }
 
     private void createView() {
         Label titleLabel = new Label("Withdraw Money");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -37,19 +36,24 @@ public class WithdrawView {
         grid.add(new Label("Account Number:"), 0, 0);
         accountNumberField = new TextField();
         accountNumberField.setPromptText("Enter account number");
+        accountNumberField.setPrefWidth(200);
         grid.add(accountNumberField, 1, 0);
 
         grid.add(new Label("Amount (BWP):"), 0, 1);
         amountField = new TextField();
         amountField.setPromptText("Enter amount");
+        amountField.setPrefWidth(200);
         grid.add(amountField, 1, 1);
 
         messageLabel = new Label("");
-        messageLabel.setStyle("-fx-text-fill: green;");
+        messageLabel.setWrapText(true);
+        messageLabel.setPrefWidth(350);
         grid.add(messageLabel, 0, 2, 2, 1);
 
         withdrawBtn = new Button("Withdraw");
+        withdrawBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20;");
         cancelBtn = new Button("Cancel");
+        cancelBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 20;");
 
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
@@ -61,12 +65,6 @@ public class WithdrawView {
         stage.setScene(scene);
     }
 
-    private void setupEventHandlers() {
-        cancelBtn.setOnAction(e -> {
-            close();
-        });
-    }
-
     public void show() {
         stage.show();
     }
@@ -76,11 +74,11 @@ public class WithdrawView {
     }
 
     public String getAccountNumber() {
-        return accountNumberField.getText();
+        return accountNumberField.getText().trim();
     }
 
     public String getAmount() {
-        return amountField.getText();
+        return amountField.getText().trim();
     }
 
     public Button getWithdrawBtn() {
@@ -94,9 +92,9 @@ public class WithdrawView {
     public void setMessage(String message, boolean isError) {
         messageLabel.setText(message);
         if (isError) {
-            messageLabel.setStyle("-fx-text-fill: red;");
+            messageLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
         } else {
-            messageLabel.setStyle("-fx-text-fill: green;");
+            messageLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
         }
     }
 

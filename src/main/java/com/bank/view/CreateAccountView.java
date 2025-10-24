@@ -27,16 +27,16 @@ public class CreateAccountView {
     private Label companyNameLabel;
     private Label companyAddressLabel;
     private Label initialDepositLabel;
+    private Label messageLabel;
 
     public CreateAccountView() {
         this.stage = new Stage();
         createView();
-        setupEventHandlers();
     }
 
     private void createView() {
         Label titleLabel = new Label("Create New Account");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -44,47 +44,57 @@ public class CreateAccountView {
         grid.setVgap(10);
         grid.setPadding(new Insets(20));
 
+        // Customer Information
         Label customerLabel = new Label("Customer Information");
-        customerLabel.setStyle("-fx-font-weight: bold;");
+        customerLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #34495e;");
         grid.add(customerLabel, 0, 0, 2, 1);
 
         grid.add(new Label("First Name:"), 0, 1);
         firstNameField = new TextField();
+        firstNameField.setPromptText("Enter first name");
         grid.add(firstNameField, 1, 1);
 
         grid.add(new Label("Surname:"), 0, 2);
         surnameField = new TextField();
+        surnameField.setPromptText("Enter surname");
         grid.add(surnameField, 1, 2);
 
         grid.add(new Label("Address:"), 0, 3);
         addressField = new TextField();
+        addressField.setPromptText("Enter address");
         grid.add(addressField, 1, 3);
 
         grid.add(new Label("Phone:"), 0, 4);
         phoneField = new TextField();
+        phoneField.setPromptText("Enter phone number");
         grid.add(phoneField, 1, 4);
 
+        // Account Information
         Label accountLabel = new Label("Account Information");
-        accountLabel.setStyle("-fx-font-weight: bold;");
+        accountLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #34495e;");
         grid.add(accountLabel, 0, 5, 2, 1);
 
         grid.add(new Label("Account Type:"), 0, 6);
         accountTypeBox = new ComboBox<>();
-        accountTypeBox.getItems().addAll("Savings", "Investment", "Cheque");
-        accountTypeBox.setValue("Savings");
+        accountTypeBox.getItems().addAll("SAVINGS", "INVESTMENT", "CHEQUE");
+        accountTypeBox.setValue("SAVINGS");
+        accountTypeBox.setPrefWidth(200);
         grid.add(accountTypeBox, 1, 6);
 
-        initialDepositLabel = new Label("Initial Deposit:");
+        // Initial Deposit (for Investment account)
+        initialDepositLabel = new Label("Initial Deposit (BWP):");
         grid.add(initialDepositLabel, 0, 7);
         initialDepositField = new TextField();
-        initialDepositField.setPromptText("Min BWP 500 for Investment");
+        initialDepositField.setPromptText("Min BWP 500.00");
         grid.add(initialDepositField, 1, 7);
         initialDepositLabel.setVisible(false);
         initialDepositField.setVisible(false);
 
+        // Company Info (for Cheque account)
         companyNameLabel = new Label("Company Name:");
         grid.add(companyNameLabel, 0, 8);
         companyNameField = new TextField();
+        companyNameField.setPromptText("Enter company name");
         grid.add(companyNameField, 1, 8);
         companyNameLabel.setVisible(false);
         companyNameField.setVisible(false);
@@ -92,44 +102,30 @@ public class CreateAccountView {
         companyAddressLabel = new Label("Company Address:");
         grid.add(companyAddressLabel, 0, 9);
         companyAddressField = new TextField();
+        companyAddressField.setPromptText("Enter company address");
         grid.add(companyAddressField, 1, 9);
         companyAddressLabel.setVisible(false);
         companyAddressField.setVisible(false);
 
+        // Message Label
+        messageLabel = new Label("");
+        messageLabel.setWrapText(true);
+        grid.add(messageLabel, 0, 10, 2, 1);
+
+        // Buttons
         createBtn = new Button("Create Account");
+        createBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold;");
         cancelBtn = new Button("Cancel");
+        cancelBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white;");
 
         HBox buttonBox = new HBox(10);
         buttonBox.setAlignment(Pos.CENTER);
         buttonBox.getChildren().addAll(createBtn, cancelBtn);
-        grid.add(buttonBox, 0, 10, 2, 1);
+        grid.add(buttonBox, 0, 11, 2, 1);
 
-        scene = new Scene(grid, 450, 500);
+        scene = new Scene(grid, 500, 550);
         stage.setTitle("Create Account");
         stage.setScene(scene);
-    }
-
-    private void setupEventHandlers() {
-        accountTypeBox.setOnAction(e -> {
-            String selectedType = accountTypeBox.getValue();
-            if (selectedType != null) {
-                switch (selectedType) {
-                    case "Investment":
-                        showInvestmentFields();
-                        break;
-                    case "Cheque":
-                        showChequeFields();
-                        break;
-                    default:
-                        hideExtraFields();
-                        break;
-                }
-            }
-        });
-
-        cancelBtn.setOnAction(e -> {
-            close();
-        });
     }
 
     public void show() {
@@ -141,19 +137,19 @@ public class CreateAccountView {
     }
 
     public String getFirstName() {
-        return firstNameField.getText();
+        return firstNameField.getText().trim();
     }
 
     public String getSurname() {
-        return surnameField.getText();
+        return surnameField.getText().trim();
     }
 
     public String getAddress() {
-        return addressField.getText();
+        return addressField.getText().trim();
     }
 
     public String getPhone() {
-        return phoneField.getText();
+        return phoneField.getText().trim();
     }
 
     public String getAccountType() {
@@ -161,15 +157,15 @@ public class CreateAccountView {
     }
 
     public String getInitialDeposit() {
-        return initialDepositField.getText();
+        return initialDepositField.getText().trim();
     }
 
     public String getCompanyName() {
-        return companyNameField.getText();
+        return companyNameField.getText().trim();
     }
 
     public String getCompanyAddress() {
-        return companyAddressField.getText();
+        return companyAddressField.getText().trim();
     }
 
     public Button getCreateBtn() {
@@ -211,6 +207,15 @@ public class CreateAccountView {
         companyAddressField.setVisible(false);
     }
 
+    public void setMessage(String message, boolean isError) {
+        messageLabel.setText(message);
+        if (isError) {
+            messageLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+        } else {
+            messageLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
+        }
+    }
+
     public void clearFields() {
         firstNameField.clear();
         surnameField.clear();
@@ -219,6 +224,8 @@ public class CreateAccountView {
         initialDepositField.clear();
         companyNameField.clear();
         companyAddressField.clear();
-        accountTypeBox.setValue("Savings");
+        accountTypeBox.setValue("SAVINGS");
+        messageLabel.setText("");
+        hideExtraFields();
     }
 }
