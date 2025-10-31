@@ -1,15 +1,18 @@
-// ============================================
-// BankController.java
-// ============================================
 package com.bank.controller;
 
+import dao.AccountDAO;
+import dao.TransactionDAO;
 import com.bank.model.*;
 
 public class BankController {
     private Bank bank;
+    private AccountDAO accountDAO;
+    private TransactionDAO transactionDAO;
 
     public BankController(Bank bank) {
         this.bank = bank;
+        this.accountDAO = new AccountDAO();
+        this.transactionDAO = new TransactionDAO();
     }
 
     // Process monthly interest for all accounts
@@ -19,11 +22,24 @@ public class BankController {
         int accountsProcessed = 0;
         for (Account account : bank.getAllAccounts()) {
             double balanceBefore = account.getBalance();
+            int transactionsBefore = account.getTransactions().size();
+
             account.payInterest();
+
             double balanceAfter = account.getBalance();
             double interestPaid = balanceAfter - balanceBefore;
 
             if (interestPaid > 0) {
+                // ✅ SAVE TO FILES
+                accountDAO.updateAccountBalance(account.getAccountNumber(), balanceAfter);
+
+                // Save interest transaction
+                if (account.getTransactions().size() > transactionsBefore) {
+                    transactionDAO.saveTransaction(
+                            account.getTransactions().get(account.getTransactions().size() - 1)
+                    );
+                }
+
                 System.out.println("Account: " + account.getAccountNumber());
                 System.out.println("Interest Paid: BWP " + String.format("%.2f", interestPaid));
                 System.out.println("New Balance: BWP " + String.format("%.2f", balanceAfter));
@@ -36,6 +52,7 @@ public class BankController {
             System.out.println("No interest payments made.");
         } else {
             System.out.println("Total accounts processed: " + accountsProcessed);
+            System.out.println("✅ All changes saved to files!");
         }
     }
 
@@ -71,6 +88,13 @@ public class BankController {
         System.out.println("  Cheque Accounts: " + chequeCount);
 
         System.out.println("\nTotal Bank Holdings: BWP " + String.format("%.2f", totalBalance));
+
+        // ✅ Show file storage info
+        System.out.println("\nData Storage:");
+        System.out.println("  Customers file: data/customers.txt");
+        System.out.println("  Accounts file: data/accounts.txt");
+        System.out.println("  Transactions file: data/transactions.txt");
+
         System.out.println("========================================\n");
     }
 
@@ -79,4 +103,3 @@ public class BankController {
         return bank.getName();
     }
 }
-

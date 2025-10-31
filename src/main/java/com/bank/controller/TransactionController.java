@@ -1,14 +1,21 @@
 package com.bank.controller;
 
+import dao.AccountDAO;
+import dao.TransactionDAO;
 import com.bank.model.*;
 import com.bank.view.*;
-import javafx.scene.control.Alert;
+
+import java.util.List;
 
 public class TransactionController {
     private Bank bank;
+    private AccountDAO accountDAO;
+    private TransactionDAO transactionDAO;
 
     public TransactionController(Bank bank) {
         this.bank = bank;
+        this.accountDAO = new AccountDAO();
+        this.transactionDAO = new TransactionDAO();
     }
 
     public void showDepositView() {
@@ -76,9 +83,31 @@ public class TransactionController {
                 return;
             }
 
+            int transactionsBefore = account.getTransactions().size();
             account.deposit(amount);
-            view.setMessage("Successfully deposited BWP " + String.format("%.2f", amount) +
-                    "\nNew balance: BWP " + String.format("%.2f", account.getBalance()), false);
+
+            // ✅ SAVE TO FILES
+            accountDAO.updateAccountBalance(accountNumber, account.getBalance());
+
+            // Save the new transaction
+            List<Transaction> transactions = account.getTransactions();
+            if (transactions.size() > transactionsBefore) {
+                transactionDAO.saveTransaction(transactions.get(transactions.size() - 1));
+            }
+
+            view.setMessage("✅ Successfully deposited BWP " + String.format("%.2f", amount) +
+                    "\nNew balance: BWP " + String.format("%.2f", account.getBalance()) +
+                    "\nSaved to file!", false);
+
+            // Clear fields after 2 seconds
+            new Thread(() -> {
+                try {
+                    Thread.sleep(2000);
+                    javafx.application.Platform.runLater(() -> view.clearFields());
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
 
         } catch (NumberFormatException e) {
             view.setMessage("Invalid amount format", true);
@@ -119,9 +148,31 @@ public class TransactionController {
                 return;
             }
 
+            int transactionsBefore = account.getTransactions().size();
             account.withdraw(amount);
-            view.setMessage("Successfully withdrew BWP " + String.format("%.2f", amount) +
-                    "\nNew balance: BWP " + String.format("%.2f", account.getBalance()), false);
+
+            // ✅ SAVE TO FILES
+            accountDAO.updateAccountBalance(accountNumber, account.getBalance());
+
+            // Save the new transaction
+            List<Transaction> transactions = account.getTransactions();
+            if (transactions.size() > transactionsBefore) {
+                transactionDAO.saveTransaction(transactions.get(transactions.size() - 1));
+            }
+
+            view.setMessage("✅ Successfully withdrew BWP " + String.format("%.2f", amount) +
+                    "\nNew balance: BWP " + String.format("%.2f", account.getBalance()) +
+                    "\nSaved to file!", false);
+
+            // Clear fields after 2 seconds
+            new Thread(() -> {
+                try {
+                    Thread.sleep(2000);
+                    javafx.application.Platform.runLater(() -> view.clearFields());
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
 
         } catch (NumberFormatException e) {
             view.setMessage("Invalid amount format", true);
@@ -154,9 +205,16 @@ public class TransactionController {
         }
 
         StringBuilder history = new StringBuilder();
+        history.append("═══════════════════════════════════════════════════════════\n");
+        history.append("                    TRANSACTION HISTORY\n");
+        history.append("═══════════════════════════════════════════════════════════\n\n");
+
+        int count = 1;
         for (Transaction t : account.getTransactions()) {
-            history.append(t.getTransactionDetails()).append("\n\n");
-            history.append("=====================================\n\n");
+            history.append(String.format("Transaction #%d\n", count++));
+            history.append("───────────────────────────────────────────────────────────\n");
+            history.append(t.getTransactionDetails()).append("\n");
+            history.append("───────────────────────────────────────────────────────────\n\n");
         }
 
         view.setHistoryText(history.toString());

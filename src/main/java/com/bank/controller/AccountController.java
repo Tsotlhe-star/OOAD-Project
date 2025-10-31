@@ -1,22 +1,169 @@
 package com.bank.controller;
 
+import dao.AccountDAO;
+import dao.CustomerDAO;
+import dao.TransactionDAO;
 import com.bank.model.*;
+import com.bank.view.CreateAccountView;
+
 import java.util.List;
 
 public class AccountController {
     private Bank bank;
+    private CustomerDAO customerDAO;
+    private AccountDAO accountDAO;
+    private TransactionDAO transactionDAO;
+    private int accountCounter = 1;
 
     public AccountController(Bank bank) {
         this.bank = bank;
+        this.customerDAO = new CustomerDAO();
+        this.accountDAO = new AccountDAO();
+        this.transactionDAO = new TransactionDAO();
     }
 
-    // Create a new account
+    public void showCreateAccountView() {
+        CreateAccountView view = new CreateAccountView();
+
+        // Handle account type changes
+        view.getAccountTypeBox().setOnAction(e -> {
+            String accountType = view.getAccountType();
+            if (accountType.equals("INVESTMENT")) {
+                view.showInvestmentFields();
+            } else if (accountType.equals("CHEQUE")) {
+                view.showChequeFields();
+            } else {
+                view.hideExtraFields();
+            }
+        });
+
+        // Handle create button
+        view.getCreateBtn().setOnAction(e -> {
+            handleCreateAccount(view);
+        });
+
+        // Handle cancel button
+        view.getCancelBtn().setOnAction(e -> {
+            view.close();
+        });
+
+        view.show();
+    }
+
+    private void handleCreateAccount(CreateAccountView view) {
+        try {
+            // Get customer information
+            String firstName = view.getFirstName();
+            String surname = view.getSurname();
+            String address = view.getAddress();
+            String phone = view.getPhone();
+            String accountType = view.getAccountType();
+
+            // Validate customer info
+            if (firstName.isEmpty() || surname.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+                view.setMessage("Please fill in all customer information fields.", true);
+                return;
+            }
+
+            // Create customer
+            Customer customer = new Customer(firstName, surname, address, phone);
+
+            // Generate account number
+            String accountNumber = generateAccountNumber(accountType);
+
+            // Create account based on type
+            Account account = null;
+
+            if (accountType.equals("SAVINGS")) {
+                account = bank.createAccount(customer, accountType, accountNumber, 0, null, null);
+
+            } else if (accountType.equals("INVESTMENT")) {
+                String depositStr = view.getInitialDeposit();
+                if (depositStr.isEmpty()) {
+                    view.setMessage("Please enter initial deposit (minimum BWP 500.00).", true);
+                    return;
+                }
+
+                double initialDeposit = Double.parseDouble(depositStr);
+                if (initialDeposit < 500.00) {
+                    view.setMessage("Investment account requires minimum BWP 500.00 initial deposit.", true);
+                    return;
+                }
+
+                account = bank.createAccount(customer, accountType, accountNumber, initialDeposit, null, null);
+
+            } else if (accountType.equals("CHEQUE")) {
+                String companyName = view.getCompanyName();
+                String companyAddress = view.getCompanyAddress();
+
+                if (companyName.isEmpty() || companyAddress.isEmpty()) {
+                    view.setMessage("Please enter employment information for Cheque account.", true);
+                    return;
+                }
+
+                account = bank.createAccount(customer, accountType, accountNumber, 0, companyName, companyAddress);
+            }
+
+            if (account != null) {
+                // ✅ SAVE TO FILES
+                customerDAO.saveCustomer(customer);
+                accountDAO.saveAccount(account);
+
+                // Save initial deposit transaction if exists
+                for (Transaction trans : account.getTransactions()) {
+                    transactionDAO.saveTransaction(trans);
+                }
+
+                view.setMessage("✅ Account created successfully!\nAccount Number: " + accountNumber +
+                        "\nData saved to files.", false);
+
+                // Clear fields after 2 seconds
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(2000);
+                        javafx.application.Platform.runLater(() -> view.clearFields());
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }).start();
+            }
+
+        } catch (NumberFormatException ex) {
+            view.setMessage("Invalid amount format. Please enter a valid number.", true);
+        } catch (IllegalArgumentException ex) {
+            view.setMessage(ex.getMessage(), true);
+        } catch (Exception ex) {
+            view.setMessage("Error creating account: " + ex.getMessage(), true);
+        }
+    }
+
+    private String generateAccountNumber(String accountType) {
+        String prefix = "";
+        switch (accountType) {
+            case "SAVINGS":
+                prefix = "SAV";
+                break;
+            case "INVESTMENT":
+                prefix = "INV";
+                break;
+            case "CHEQUE":
+                prefix = "CHQ";
+                break;
+        }
+        return prefix + String.format("%04d", accountCounter++);
+    }
+
+    // Create a new account (console version)
     public Account createNewAccount(Customer customer, String accountType, String accountNumber,
                                     double initialDeposit, String companyName, String companyAddress) {
         try {
             Account account = bank.createAccount(customer, accountType, accountNumber,
                     initialDeposit, companyName, companyAddress);
             if (account != null) {
+                // ✅ SAVE TO FILES
+                customerDAO.saveCustomer(customer);
+                accountDAO.saveAccount(account);
+
                 System.out.println("Account created successfully!");
                 System.out.println("Account Number: " + account.getAccountNumber());
                 return account;
@@ -43,7 +190,17 @@ public class AccountController {
             return false;
         }
 
+        double oldBalance = account.getBalance();
         account.deposit(amount);
+
+        // ✅ SAVE TO FILES
+        accountDAO.updateAccountBalance(accountNumber, account.getBalance());
+        // Save the latest transaction
+        List<Transaction> transactions = account.getTransactions();
+        if (!transactions.isEmpty()) {
+            transactionDAO.saveTransaction(transactions.get(transactions.size() - 1));
+        }
+
         System.out.println("Successfully deposited BWP " + String.format("%.2f", amount));
         System.out.println("New balance: BWP " + String.format("%.2f", account.getBalance()));
         return true;
@@ -74,6 +231,15 @@ public class AccountController {
         }
 
         account.withdraw(amount);
+
+        // ✅ SAVE TO FILES
+        accountDAO.updateAccountBalance(accountNumber, account.getBalance());
+        // Save the latest transaction
+        List<Transaction> transactions = account.getTransactions();
+        if (!transactions.isEmpty()) {
+            transactionDAO.saveTransaction(transactions.get(transactions.size() - 1));
+        }
+
         System.out.println("Successfully withdrew BWP " + String.format("%.2f", amount));
         System.out.println("New balance: BWP " + String.format("%.2f", account.getBalance()));
         return true;
@@ -140,8 +306,5 @@ public class AccountController {
             System.out.println("Balance: BWP " + String.format("%.2f", acc.getBalance()));
             System.out.println("-----------------------------------");
         }
-    }
-
-    public void showCreateAccountView() {
     }
 }
