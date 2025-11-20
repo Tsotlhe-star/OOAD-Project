@@ -27,6 +27,11 @@ public class MainMenuController {
             accountController.showCreateAccountView();
         });
 
+        // View All Accounts button
+        mainMenuView.getViewAccountsBtn().setOnAction(e -> {
+            accountController.showViewAccountsView();
+        });
+
         // Deposit button
         mainMenuView.getDepositBtn().setOnAction(e -> {
             transactionController.showDepositView();

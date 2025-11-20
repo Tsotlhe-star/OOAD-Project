@@ -1,5 +1,6 @@
 package com.bank.controller;
 
+import com.bank.view.ViewAccountsView;
 import dao.AccountDAO;
 import dao.CustomerDAO;
 import dao.TransactionDAO;
@@ -307,4 +308,46 @@ public class AccountController {
             System.out.println("-----------------------------------");
         }
     }
+    public void showViewAccountsView() {
+        ViewAccountsView view = new ViewAccountsView();
+
+        StringBuilder accountsList = new StringBuilder();
+        accountsList.append("═══════════════════════════════════════════════════════════\n");
+        accountsList.append("                    ALL BANK ACCOUNTS\n");
+        accountsList.append("═══════════════════════════════════════════════════════════\n\n");
+
+        if (bank.getAllAccounts().isEmpty()) {
+            accountsList.append("No accounts found in the system.\n");
+        } else {
+            int count = 1;
+            for (Account account : bank.getAllAccounts()) {
+                accountsList.append(String.format("Account #%d\n", count++));
+                accountsList.append("───────────────────────────────────────────────────────────\n");
+                accountsList.append(String.format("Account Number:  %s\n", account.getAccountNumber()));
+                accountsList.append(String.format("Account Type:    %s\n", account.getClass().getSimpleName()));
+                accountsList.append(String.format("Account Holder:  %s\n", account.getCustomer().getFullName()));
+                accountsList.append(String.format("Phone:           %s\n", account.getCustomer().getPhoneNumber()));
+                accountsList.append(String.format("Balance:         BWP %.2f\n", account.getBalance()));
+                accountsList.append(String.format("Transactions:    %d\n", account.getTransactions().size()));
+
+                if (account instanceof ChequeAccount) {
+                    ChequeAccount cheque = (ChequeAccount) account;
+                    accountsList.append(String.format("Company:         %s\n", cheque.getCompanyName()));
+                }
+
+                accountsList.append("───────────────────────────────────────────────────────────\n\n");
+            }
+
+            accountsList.append(String.format("\nTotal Accounts: %d\n", bank.getAllAccounts().size()));
+        }
+
+        view.setAccountsText(accountsList.toString());
+
+        view.getCloseBtn().setOnAction(e -> {
+            view.close();
+        });
+
+        view.show();
+    }
+
 }

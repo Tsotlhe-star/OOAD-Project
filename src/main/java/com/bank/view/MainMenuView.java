@@ -16,6 +16,7 @@ public class MainMenuView {
     private Button depositBtn;
     private Button withdrawBtn;
     private Button viewHistoryBtn;
+    private Button viewAccountsBtn;
     private Button processInterestBtn;
     private Button exitBtn;
 
@@ -35,6 +36,7 @@ public class MainMenuView {
         depositBtn = new Button("Deposit Money");
         withdrawBtn = new Button("Withdraw Money");
         viewHistoryBtn = new Button("View Transaction History");
+        viewAccountsBtn = new Button("View All Accounts");
         processInterestBtn = new Button("Process Monthly Interest");
         exitBtn = new Button("Exit");
 
@@ -44,6 +46,7 @@ public class MainMenuView {
         depositBtn.setStyle(buttonStyle + "-fx-background-color: #2ecc71; -fx-text-fill: white;");
         withdrawBtn.setStyle(buttonStyle + "-fx-background-color: #e74c3c; -fx-text-fill: white;");
         viewHistoryBtn.setStyle(buttonStyle + "-fx-background-color: #9b59b6; -fx-text-fill: white;");
+        viewAccountsBtn.setStyle(buttonStyle + "-fx-background-color: #16a085; -fx-text-fill: white;");
         processInterestBtn.setStyle(buttonStyle + "-fx-background-color: #f39c12; -fx-text-fill: white;");
         exitBtn.setStyle(buttonStyle + "-fx-background-color: #95a5a6; -fx-text-fill: white;");
 
@@ -51,6 +54,7 @@ public class MainMenuView {
         depositBtn.setPrefWidth(250);
         withdrawBtn.setPrefWidth(250);
         viewHistoryBtn.setPrefWidth(250);
+        viewAccountsBtn.setPrefWidth(250);
         processInterestBtn.setPrefWidth(250);
         exitBtn.setPrefWidth(250);
 
@@ -65,6 +69,7 @@ public class MainMenuView {
                 depositBtn,
                 withdrawBtn,
                 viewHistoryBtn,
+                viewAccountsBtn,
                 processInterestBtn,
                 exitBtn
         );
@@ -100,5 +105,8 @@ public class MainMenuView {
 
     public Button getExitBtn() {
         return exitBtn;
+    }
+    public Button getViewAccountsBtn() {
+        return viewAccountsBtn;
     }
 }
