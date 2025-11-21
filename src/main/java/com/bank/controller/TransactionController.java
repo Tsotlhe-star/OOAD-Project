@@ -142,6 +142,24 @@ public class TransactionController {
                 return;
             }
 
+            // Special check for Investment Account minimum balance
+            if (account instanceof InvestmentAccount) {
+                InvestmentAccount investmentAccount = (InvestmentAccount) account;
+                double maxWithdrawable = investmentAccount.getMaxWithdrawableAmount();
+
+                if (amount > maxWithdrawable) {
+                    view.setMessage(String.format(
+                            "Investment accounts must maintain BWP 500.00 minimum balance.\n\n" +
+                                    "Current Balance: BWP %.2f\n" +
+                                    "Maximum Withdrawable: BWP %.2f\n\n" +
+                                    "Please enter a smaller amount.",
+                            account.getBalance(),
+                            maxWithdrawable
+                    ), true);
+                    return;
+                }
+            }
+
             if (account.getBalance() < amount) {
                 view.setMessage("Insufficient funds. Balance: BWP " +
                         String.format("%.2f", account.getBalance()), true);
@@ -151,7 +169,13 @@ public class TransactionController {
             int transactionsBefore = account.getTransactions().size();
             account.withdraw(amount);
 
-            // ✅ SAVE TO FILES
+            // Check if withdrawal actually happened (might have been blocked by minimum balance)
+            if (account.getTransactions().size() == transactionsBefore) {
+                view.setMessage("Withdrawal failed. Please check account requirements.", true);
+                return;
+            }
+
+            //  SAVE TO FILES
             accountDAO.updateAccountBalance(accountNumber, account.getBalance());
 
             // Save the new transaction
